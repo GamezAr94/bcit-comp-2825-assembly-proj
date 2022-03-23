@@ -9,7 +9,7 @@ jmp start
                            
 ; add the first message: msg 
 ; 0dh,0ah: enter a new line
-msg: db "1) Add",0dh,0ah,"2) Multiply",0dh,0ah,"3) Subtract",0dh,0ah,"4) Divide",0dh,0ah,"$" 
+msg: db 0dh,0ah,"1) Add",0dh,0ah,"2) Multiply",0dh,0ah,"3) Subtract",0dh,0ah,"4) Divide",0dh,0ah,"5) Exit",0dh,0ah,"$"
 errorMsg: db 0dh,0ah,"Invalid Input, press any key to continue",0dh,0ah,0dh,0ah,"$"
 firstNumMsg: db 0dh,0ah,"Enter first number:(press enter to continue) $"  
 secondNumMsg: db 0dh,0ah,"Enter second number:(press enter to continue) $"
@@ -34,7 +34,10 @@ start:  mov ah,9 ;to view a message
         je Subtract 
         
         cmp al,34h 
-        je Divide 
+        je Divide
+        
+        cmp al,35h
+        je Exit
               
         ;If the input is not valid, display an error message      
         mov ah,9  
@@ -43,8 +46,8 @@ start:  mov ah,9 ;to view a message
            
         ;wait an input to restart the program   
         mov ah,0   
-        int 16h   
-        jmp start
+        int 16h
+        jmp start          
         
                        
 Addition:   
@@ -168,10 +171,50 @@ exit:
 
        ret     
 
-Multiply:  
+Multiply:
 
-Subtract:   
+ 
 
+Subtract:
+            mov ah,09h  
+            mov dx, offset firstNumMsg
+            int 21h
+            mov cx,0 
+            call InputNumber
+            push dx
+            mov ah,9
+            mov dx, offset secondNumMsg
+            int 21h 
+            mov cx,0
+            call InputNumber
+            pop bx
+            cmp dx,bx
+            jge GREATER ; equal or greater
+            JMP LESS    ; less
+         
+GREATER:    
+            sub dx,bx
+            push dx 
+            mov ah,9
+            mov dx, offset negResultMsg
+            int 21h
+            mov cx,10000
+            pop dx
+            call View 
+            jmp start
+            
+
+LESS:       
+            sub bx,dx
+            push bx 
+            mov ah,9
+            mov dx, offset resultMsg
+            int 21h
+            mov cx,10000
+            pop dx
+            call View 
+            jmp start 
+                       
 Divide:     
                   
 ; add your code here
