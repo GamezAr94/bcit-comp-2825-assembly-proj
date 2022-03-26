@@ -205,8 +205,8 @@ Multiply:
         
         mov cx,10000
         pop dx
-        call View 
-        jmp exit
+        call View   
+        jmp start
 
 Subtract:
             mov ah,09h  
@@ -286,8 +286,8 @@ Divide:
         call View
         pop bx
         cmp bx,0
-        je exit 
-        jmp exit
+        je start 
+        jmp start
                   
 ; add your code here
 
