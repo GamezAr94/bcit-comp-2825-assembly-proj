@@ -175,7 +175,38 @@ Exit:
 
        ret     
 
-Multiply:  
+Multiply:   
+        mov ah,09h
+        mov dx, offset firstNumMsg
+        int 21h
+                 
+                 
+        mov cx,0
+        call InputNumber
+        
+        push dx    
+        
+        mov ah,9
+        mov dx, offset secondNumMsg
+        int 21h  
+        
+        mov cx,0
+        call InputNumber
+        
+        pop bx
+        mov ax,dx
+        mul bx 
+        mov dx,ax
+        push dx
+         
+        mov ah,9
+        mov dx, offset resultMsg
+        int 21h
+        
+        mov cx,10000
+        pop dx
+        call View 
+        jmp exit
 
 Subtract:
             mov ah,09h  
@@ -217,7 +248,46 @@ LESS:
             call View       
             jmp start
 
-Divide:     
+Divide:      
+        mov ah,09h
+        mov dx, offset firstNumMsg
+        int 21h   
+        
+        mov cx,0
+        call InputNumber
+        
+        push dx  
+        
+        mov ah,9
+        mov dx, offset secondNumMsg
+        int 21h  
+        
+        mov cx,0
+        call InputNumber
+        
+        pop bx
+        mov ax,bx
+        mov cx,dx
+        mov dx,0
+        mov bx,0 
+        
+        div cx
+        mov bx,dx
+        mov dx,ax
+        push bx 
+        push dx 
+        
+        mov ah,9
+        mov dx, offset resultMsg
+        int 21h    
+        
+        mov cx,10000
+        pop dx
+        call View
+        pop bx
+        cmp bx,0
+        je exit 
+        jmp exit
                   
 ; add your code here
 
