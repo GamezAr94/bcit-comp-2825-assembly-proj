@@ -1,8 +1,8 @@
-
+ 
 ; You may customize this and other start-up templates; 
 ; The location of this template is c:\emu8086\inc\0_com_template.txt
 
-org 100h        
+org 100h       ; set the location of the code at the address of current address + 100h(one segment of max 64kbs)  
 
 jmp start 
                            
@@ -14,18 +14,19 @@ errorMsg: db 0dh,0ah,"Invalid Input, press any key to continue",0dh,0ah,0dh,0ah,
 firstNumMsg: db 0dh,0ah,"Enter first number: $"  
 secondNumMsg: db 0dh,0ah,"Enter second number: $"
 resultMsg: db 0dh,0ah,"Result is = $"  
-negResultMsg: db 0dh,0ah,"Result is = - $"  
+negResultMsg: db 0dh,0ah,"Result is = - $"
+remainderMsg: db 0dh,0ah,"Remainder: is = $"  
 exitMsg: db 0dh,0ah ,'thank you for using the calculator! press any key... ', 0Dh,0Ah, '$'
 
 
-start:  mov ah,9  ;to view a message 
-        mov dx, offset msg  ;move to dx the value of the message
-        int 21h   ;interrupt 21h to display the first message 
+start:  mov ah,9  
+        mov dx, offset msg  
+        int 21h   
         
-        mov ah,0  ;store the value of the keyboard input 
-        int 16h   ;interrupt 16h to read the input key  
+        mov ah,0   
+        int 16h    
         
-        cmp al,31h ;the input will be stored in al, we need to compare the input with 31h (Where, 31H is ASCII value for 1, 32H is ASCII value for 2, and so on)
+        cmp al,31h ;the input is stored in al, we need to compare the input with 31h (Where, 31H is ASCII value for 1, 32H is ASCII value for 2, and so on)
         je Addition  ;if is equal to 1 jump to the addition  
         
         cmp al,32h 
@@ -61,28 +62,28 @@ Addition:
         mov cx,0 ;first we will move to cx 0 because we will increment on it later in InputNumber, cx reresent the number of digits (ie 2020 has 4 digits)
         call InputNumber  ;now we have our first number stored   
         
-        push dx ;push to the stack to dont affect it 
+        push dx ;push to the stack original data (1st input) 
         
         ;display second message
         mov ah,9
-        mov dx, offset secondNumMsg        
+        mov dx, offset secondNumMsg ; now it stores the very recent input (2nd input)       
         int 21h                 
         
         mov cx,0
         call InputNumber ;now we have our second number stored
         
-        pop bx 
-        add dx,bx ;the result is stored in dx
-        push dx
+        pop bx  ;get the original data (1st input)and put into bx
+        add dx,bx ; add 1st + 2nd input-> store result into dx)
+        push dx  ;push to the stack original data of the result
          
         mov ah,9
         mov dx, offset resultMsg
         int 21h      
         
-        mov cx,10000 ;this is the maximum number this calculator can handle
-        pop dx
-        call View 
-        jmp start 
+        mov cx,10000 ;this is the maximum number this calculator can handle(cx is count register)
+        pop dx  ;get the original data
+        call View ; call view to display the result to screen
+        jmp start   ; loop the program until user wants to exit
         
         
 InputNumber: 
@@ -181,10 +182,10 @@ Multiply:
         int 21h
                  
                  
-        mov cx,0
+        mov cx,0   ; count how many number input
         call InputNumber
         
-        push dx    
+        push dx ;store 1st number  
         
         mov ah,9
         mov dx, offset secondNumMsg
@@ -193,11 +194,11 @@ Multiply:
         mov cx,0
         call InputNumber
         
-        pop bx
-        mov ax,dx
-        mul bx 
-        mov dx,ax
-        push dx
+        pop bx   ; get 1st number
+        mov ax,dx ; move the second number to ax
+        mul bx    ; multiply with first number
+        mov dx,ax ; result is stored into dx
+        push dx   ; store result into stack 
          
         mov ah,9
         mov dx, offset resultMsg
@@ -205,7 +206,7 @@ Multiply:
         
         mov cx,10000
         pop dx
-        call View   
+        call View 
         jmp start
 
 Subtract:
@@ -256,7 +257,7 @@ Divide:
         mov cx,0
         call InputNumber
         
-        push dx  
+        push dx   ; 1st input goes to stack
         
         mov ah,9
         mov dx, offset secondNumMsg
@@ -265,16 +266,16 @@ Divide:
         mov cx,0
         call InputNumber
         
-        pop bx
-        mov ax,bx
-        mov cx,dx
-        mov dx,0
-        mov bx,0 
+        pop bx    ; get 1st input and store it into bx
+        mov ax,bx ; move to ax 1st input
+        mov cx,dx ; move to cx 2nd input
+        mov dx,0   
+        mov bx,0  
         
         div cx
         mov bx,dx
-        mov dx,ax
         push bx 
+        mov dx,ax 
         push dx 
         
         mov ah,9
@@ -286,13 +287,24 @@ Divide:
         call View
         pop bx
         cmp bx,0
-        je start 
+        je start
+        JMP REMAINDER  
+        
+
+REMAINDER:
+        mov dx,bx
+        push dx
+        mov ah,9  
+        mov dx, offset remainderMsg
+        int 21h    
+        
+        mov cx,10000
+        pop dx
+        call View       
         jmp start
                   
 ; add your code here
 
 ret
-
-
 
 
